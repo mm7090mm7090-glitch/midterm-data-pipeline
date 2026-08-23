@@ -1,0 +1,28 @@
+﻿# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Large/local datasets
+data/orders_huge_mixed_quality.csv
+
+# Temporary/demo uploads
+web/uploads/
+
+# Spark / temp files
+spark-temp/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Backup files
+src/*_backup.py
+src/*_backup_*.py
+
+# Optional local artifacts
+*.tmp

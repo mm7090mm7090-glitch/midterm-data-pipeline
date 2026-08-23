@@ -1,0 +1,997 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hybrid Big Data Pipeline</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="brand">
+        <div class="brand-icon">BD</div>
+        <div>
+            <h2>Big Data Pipeline</h2>
+            <p>Midterm Project</p>
+        </div>
+    </div>
+
+    <nav>
+        <a href="#dashboard" class="active">Dashboard</a>
+        <a href="#test">اختبار Pipeline</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#quality">Data Quality</a>
+        <a href="#performance">Performance</a>
+        <a href="#evidence">Evidence</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        Python • PySpark • MongoDB
+    </div>
+</div>
+
+
+<main class="content">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <section id="dashboard" class="hero">
+        <div>
+            <span class="badge">Hybrid ELT System</span>
+
+            <h1>
+                Hybrid Big Data
+                <span>Order Processing Pipeline</span>
+            </h1>
+
+            <p>
+                نظام لمعالجة ملفات CSV الصغيرة والكبيرة تلقائيًا
+                باستخدام Python Batch وApache PySpark مع MongoDB.
+            </p>
+        </div>
+
+        <div class="hero-status">
+            <span class="status-dot"></span>
+            System Ready
+        </div>
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- 30M RESULTS -->
+    <!-- ================================================= -->
+
+    <section>
+        <div class="section-title">
+            <div>
+                <h2>نتيجة معالجة 30 مليون سجل</h2>
+                <p>Final Large Dataset Result</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <span class="stat-label">RAW</span>
+
+                <strong>
+                    {{ "{:,}".format(summary.get("read_rows", 30000000)) }}
+                </strong>
+
+                <small>إجمالي السجلات</small>
+            </div>
+
+            <div class="stat-card valid">
+                <span class="stat-label">VALID</span>
+
+                <strong>
+                    {{ "{:,}".format(summary.get("count_valid", 208594)) }}
+                </strong>
+
+                <small>بيانات صحيحة</small>
+            </div>
+
+            <div class="stat-card corrected">
+                <span class="stat-label">CORRECTED</span>
+
+                <strong>
+                    {{ "{:,}".format(summary.get("count_corrected", 27580876)) }}
+                </strong>
+
+                <small>تم تصحيحها</small>
+            </div>
+
+            <div class="stat-card quarantine">
+                <span class="stat-label">QUARANTINE</span>
+
+                <strong>
+                    {{ "{:,}".format(summary.get("count_quarantine", 2210530)) }}
+                </strong>
+
+                <small>تحتاج عزل</small>
+            </div>
+
+        </div>
+
+
+        <div class="metrics-row">
+
+            <div class="metric">
+                <span>Throughput</span>
+                <strong>
+                    {{ "%.2f"|format(summary.get("throughput", 8916.09)) }}
+                    rec/sec
+                </strong>
+            </div>
+
+            <div class="metric">
+                <span>Elapsed Time</span>
+                <strong>
+                    {{ "%.2f"|format(summary.get("seconds_elapsed", 3364.70)) }}
+                    sec
+                </strong>
+            </div>
+
+            <div class="metric">
+                <span>Partitions</span>
+                <strong>
+                    {{ summary.get("partitions", 229) }}
+                </strong>
+            </div>
+
+            <div class="metric">
+                <span>Consistency</span>
+                <strong class="passed">PASSED ✓</strong>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- TEST PIPELINE -->
+    <!-- ================================================= -->
+
+    <section id="test" class="panel important-panel">
+
+        <div class="section-title">
+            <div>
+                <span class="badge">LIVE TEST</span>
+                <h2>اختبار بيانات الدكتور</h2>
+
+                <p>
+                    اختر أي ملف CSV وسيتم تحديد Engine وتشغيل
+                    Pipeline وعرض النتيجة تلقائيًا.
+                </p>
+            </div>
+        </div>
+
+
+        <div class="upload-box" id="dropArea">
+
+            <input
+                type="file"
+                id="csvFile"
+                accept=".csv"
+                hidden
+            >
+
+            <div class="upload-icon">CSV</div>
+
+            <h3>اختر ملف CSV</h3>
+
+            <p id="selectedFile">
+                لم يتم اختيار ملف حتى الآن
+            </p>
+
+            <button
+                class="secondary-button"
+                onclick="document.getElementById('csvFile').click()"
+            >
+                اختيار الملف
+            </button>
+
+        </div>
+
+
+        <div id="fileInfo" class="file-info hidden">
+
+            <div>
+                <span>File Name</span>
+                <strong id="fileName">-</strong>
+            </div>
+
+            <div>
+                <span>File Size</span>
+                <strong id="fileSize">-</strong>
+            </div>
+
+        </div>
+
+
+        <button
+            id="runButton"
+            class="run-button"
+            onclick="runPipeline()"
+            disabled
+        >
+            تشغيل Pipeline
+        </button>
+
+
+        <div id="runMeta" class="run-meta hidden">
+
+            <div>
+                <span>Run ID</span>
+                <strong id="runId">-</strong>
+            </div>
+
+            <div>
+                <span>Selected Engine</span>
+                <strong id="engine">-</strong>
+            </div>
+
+            <div>
+                <span>Status</span>
+                <strong id="jobStatus">-</strong>
+            </div>
+
+        </div>
+
+
+        <div id="progressArea" class="hidden">
+
+            <div class="progress">
+                <div
+                    id="progressBar"
+                    class="progress-bar"
+                ></div>
+            </div>
+
+            <p id="progressText">
+                جاري المعالجة...
+            </p>
+
+        </div>
+
+
+        <!-- FINAL TEST RESULTS -->
+
+        <div id="resultArea" class="hidden">
+
+            <h3 class="result-heading">
+                نتيجة اختبار الملف
+            </h3>
+
+            <div class="stats-grid test-results">
+
+                <div class="stat-card">
+                    <span class="stat-label">RAW</span>
+                    <strong id="testRaw">0</strong>
+                </div>
+
+                <div class="stat-card valid">
+                    <span class="stat-label">VALID</span>
+                    <strong id="testValid">0</strong>
+                </div>
+
+                <div class="stat-card corrected">
+                    <span class="stat-label">CORRECTED</span>
+                    <strong id="testCorrected">0</strong>
+                </div>
+
+                <div class="stat-card quarantine">
+                    <span class="stat-label">QUARANTINE</span>
+                    <strong id="testQuarantine">0</strong>
+                </div>
+
+            </div>
+
+
+            <div class="metrics-row">
+
+                <div class="metric">
+                    <span>Inserted</span>
+                    <strong id="testInserted">0</strong>
+                </div>
+
+                <div class="metric">
+                    <span>Updated</span>
+                    <strong id="testUpdated">0</strong>
+                </div>
+
+                <div class="metric">
+                    <span>Unchanged</span>
+                    <strong id="testUnchanged">0</strong>
+                </div>
+
+                <div class="metric">
+                    <span>Consistency</span>
+                    <strong
+                        id="testConsistency"
+                        class="passed"
+                    >
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="log-container">
+
+            <div class="log-header">
+                <span>Live Pipeline Log</span>
+
+                <button onclick="clearLog()">
+                    Clear
+                </button>
+            </div>
+
+            <pre id="pipelineLog">Waiting for a pipeline run...</pre>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- ARCHITECTURE -->
+    <!-- ================================================= -->
+
+    <section id="architecture" class="panel">
+
+        <div class="section-title">
+            <div>
+                <h2>System Architecture</h2>
+                <p>Hybrid ELT Architecture</p>
+            </div>
+        </div>
+
+
+        <div class="architecture">
+
+            <div class="arch-node">
+                CSV Input
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="arch-node highlight">
+                Automatic Router
+                <small>Threshold = 200 MB</small>
+            </div>
+
+            <div class="split">
+
+                <div>
+                    <span>≤ 200 MB</span>
+                    <strong>Python Batch</strong>
+                </div>
+
+                <div>
+                    <span>&gt; 200 MB</span>
+                    <strong>PySpark</strong>
+                </div>
+
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="arch-node">
+                MongoDB
+                <small>orders_raw</small>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="arch-node highlight">
+                Cleaning & Validation
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="classification">
+
+                <div class="valid-box">
+                    Valid
+                </div>
+
+                <div class="corrected-box">
+                    Corrected
+                </div>
+
+                <div class="quarantine-box">
+                    Quarantine
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- QUALITY RULES -->
+    <!-- ================================================= -->
+
+    <section id="quality" class="panel">
+
+        <div class="section-title">
+            <div>
+                <h2>Data Quality Rules</h2>
+                <p>Deterministic corrections — No guessing</p>
+            </div>
+        </div>
+
+
+        <div class="rules-grid">
+
+            <div class="rule">
+                <b>01</b>
+                <div>
+                    <strong>Arabic Digits</strong>
+                    <span>١٢٣ → 123</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>02</b>
+                <div>
+                    <strong>Thousands Separator</strong>
+                    <span>135,000 → 135000</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>03</b>
+                <div>
+                    <strong>Price Words</strong>
+                    <span>خمسة آلاف → 5000</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>04</b>
+                <div>
+                    <strong>Currency</strong>
+                    <span>ريال يمني → YER</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>05</b>
+                <div>
+                    <strong>Phone</strong>
+                    <span>Normalize Yemeni numbers</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>06</b>
+                <div>
+                    <strong>Email</strong>
+                    <span>Repeated symbols correction</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>07</b>
+                <div>
+                    <strong>Date</strong>
+                    <span>Normalize to ISO format</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>08</b>
+                <div>
+                    <strong>Text Values</strong>
+                    <span>Whitespace & synonyms</span>
+                </div>
+            </div>
+
+            <div class="rule">
+                <b>09</b>
+                <div>
+                    <strong>Total Amount</strong>
+                    <span>Safe recalculation</span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <h3 class="sub-heading">
+            Quarantine Error Codes
+        </h3>
+
+        <div class="error-tags">
+            <span>ID_ORDER_MISSING</span>
+            <span>ID_CUSTOMER_MISSING</span>
+            <span>DATE_IMPOSSIBLE_INVALID</span>
+            <span>JSON_ITEMS_CORRUPTED</span>
+            <span>ITEMS_EMPTY</span>
+            <span>PRICE_UNKNOWN</span>
+            <span>VALUE_NEGATIVE_AMBIGUOUS</span>
+            <span>ID_ORDER_DUPLICATE</span>
+            <span>ERRORS_CONFLICTING_MULTIPLE</span>
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- PERFORMANCE -->
+    <!-- ================================================= -->
+
+    <section id="performance" class="panel">
+
+        <div class="section-title">
+            <div>
+                <h2>Performance & Technology</h2>
+                <p>Python Batch vs PySpark</p>
+            </div>
+        </div>
+
+
+        <div class="comparison">
+
+            <div class="compare-card">
+
+                <h3>Python Batch</h3>
+
+                <ul>
+                    <li>Files ≤ 200 MB</li>
+                    <li>Streaming CSV</li>
+                    <li>Batch Size: 1000</li>
+                    <li>MongoDB insert_many</li>
+                    <li>Low startup overhead</li>
+                </ul>
+
+            </div>
+
+
+            <div class="compare-card spark">
+
+                <h3>Apache PySpark</h3>
+
+                <ul>
+                    <li>Files &gt; 200 MB</li>
+                    <li>DataFrame API</li>
+                    <li>Fixed Schema</li>
+                    <li>Parallel Processing</li>
+                    <li>MongoDB Spark Connector</li>
+                    <li>Spark UI Monitoring</li>
+                </ul>
+
+            </div>
+
+        </div>
+
+
+        <div class="technology-tags">
+            <span>Python 3.11</span>
+            <span>Apache Spark 3.5.9</span>
+            <span>MongoDB</span>
+            <span>PyMongo</span>
+            <span>Flask</span>
+            <span>pytest</span>
+            <span>Java 11</span>
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- EVIDENCE -->
+    <!-- ================================================= -->
+
+    <section id="evidence" class="panel">
+
+        <div class="section-title">
+            <div>
+                <h2>Project Evidence</h2>
+
+                <p>
+                    الأدلة محفوظة داخل
+                    reports/screenshots
+                </p>
+            </div>
+        </div>
+
+
+        <div class="evidence-list">
+
+            <div>✓ Automatic Router Proof</div>
+            <div>✓ 30M Final Spark Result</div>
+            <div>✓ MongoDB Raw</div>
+            <div>✓ MongoDB Valid</div>
+            <div>✓ MongoDB Corrected</div>
+            <div>✓ MongoDB Quarantine</div>
+            <div>✓ Idempotency / Upsert</div>
+            <div>✓ Spark UI</div>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+        Hybrid Big Data Order Processing Pipeline
+        <br>
+        Python Batch • Apache PySpark • MongoDB • Flask
+    </footer>
+
+</main>
+
+
+<script>
+
+let selectedFile = null;
+let currentJobId = null;
+let pollingTimer = null;
+
+
+/* ===================================================== */
+/* FILE SELECTION */
+/* ===================================================== */
+
+document
+    .getElementById("csvFile")
+    .addEventListener("change", function(event) {
+
+        selectedFile = event.target.files[0];
+
+        if (!selectedFile) {
+            return;
+        }
+
+        document.getElementById("selectedFile").textContent =
+            selectedFile.name;
+
+        document.getElementById("fileName").textContent =
+            selectedFile.name;
+
+        document.getElementById("fileSize").textContent =
+            formatFileSize(selectedFile.size);
+
+        document
+            .getElementById("fileInfo")
+            .classList.remove("hidden");
+
+        document.getElementById("runButton").disabled = false;
+    });
+
+
+function formatFileSize(bytes) {
+
+    const mb = bytes / (1024 * 1024);
+
+    if (mb >= 1024) {
+        return (mb / 1024).toFixed(2) + " GB";
+    }
+
+    return mb.toFixed(2) + " MB";
+}
+
+
+/* ===================================================== */
+/* RUN PIPELINE */
+/* ===================================================== */
+
+async function runPipeline() {
+
+    if (!selectedFile) {
+        alert("اختر ملف CSV أولاً");
+        return;
+    }
+
+
+    const button =
+        document.getElementById("runButton");
+
+    button.disabled = true;
+    button.textContent = "جاري رفع وتشغيل الملف...";
+
+
+    document
+        .getElementById("resultArea")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("progressArea")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("runMeta")
+        .classList.remove("hidden");
+
+
+    document.getElementById("pipelineLog").textContent =
+        "Uploading file and starting pipeline...\n";
+
+
+    const formData = new FormData();
+
+    formData.append(
+        "file",
+        selectedFile
+    );
+
+
+    try {
+
+        const response = await fetch(
+            "/api/run",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Unable to start pipeline."
+            );
+        }
+
+
+        currentJobId = data.job_id;
+
+
+        document.getElementById("runId").textContent =
+            data.run_id;
+
+
+        document.getElementById("engine").textContent =
+            data.engine;
+
+
+        document.getElementById("jobStatus").textContent =
+            data.status;
+
+
+        startPolling();
+
+
+    } catch (error) {
+
+        document.getElementById("pipelineLog").textContent +=
+            "\nERROR: " + error.message;
+
+
+        button.disabled = false;
+        button.textContent = "تشغيل Pipeline";
+    }
+}
+
+
+/* ===================================================== */
+/* STATUS POLLING */
+/* ===================================================== */
+
+function startPolling() {
+
+    if (pollingTimer) {
+        clearInterval(pollingTimer);
+    }
+
+
+    pollingTimer = setInterval(
+        pollJob,
+        1500
+    );
+
+
+    pollJob();
+}
+
+
+async function pollJob() {
+
+    if (!currentJobId) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "/api/status/" + currentJobId
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Unable to read job status."
+            );
+        }
+
+
+        document.getElementById("engine").textContent =
+            data.engine || "-";
+
+
+        document.getElementById("jobStatus").textContent =
+            data.status || "-";
+
+
+        if (Array.isArray(data.log)) {
+
+            const log =
+                data.log.join("\n");
+
+            const logBox =
+                document.getElementById("pipelineLog");
+
+            logBox.textContent = log;
+
+            logBox.scrollTop =
+                logBox.scrollHeight;
+        }
+
+
+        if (data.status === "completed") {
+
+            clearInterval(pollingTimer);
+            pollingTimer = null;
+
+            showResults(data.result);
+
+        }
+
+
+        if (data.status === "failed") {
+
+            clearInterval(pollingTimer);
+            pollingTimer = null;
+
+            document.getElementById("progressText").textContent =
+                "Pipeline Failed";
+
+
+            document.getElementById("pipelineLog").textContent +=
+                "\n\nERROR: " + (data.error || "Unknown error");
+
+
+            resetRunButton();
+        }
+
+
+    } catch (error) {
+
+        console.error(error);
+    }
+}
+
+
+/* ===================================================== */
+/* SHOW FINAL RESULTS */
+/* ===================================================== */
+
+function showResults(result) {
+
+    if (!result) {
+        return;
+    }
+
+
+    document.getElementById("testRaw").textContent =
+        formatNumber(result.read_rows || 0);
+
+
+    document.getElementById("testValid").textContent =
+        formatNumber(result.count_valid || 0);
+
+
+    document.getElementById("testCorrected").textContent =
+        formatNumber(result.count_corrected || 0);
+
+
+    document.getElementById("testQuarantine").textContent =
+        formatNumber(result.count_quarantine || 0);
+
+
+    document.getElementById("testInserted").textContent =
+        formatNumber(result.count_inserted || 0);
+
+
+    document.getElementById("testUpdated").textContent =
+        formatNumber(result.count_updated || 0);
+
+
+    document.getElementById("testUnchanged").textContent =
+        formatNumber(result.count_unchanged || 0);
+
+
+    const raw =
+        Number(result.read_rows || 0);
+
+
+    const classified =
+        Number(result.count_valid || 0)
+        +
+        Number(result.count_corrected || 0)
+        +
+        Number(result.count_quarantine || 0);
+
+
+    const consistency =
+        document.getElementById("testConsistency");
+
+
+    if (raw === classified) {
+
+        consistency.textContent = "PASSED ✓";
+        consistency.className = "passed";
+
+    } else {
+
+        consistency.textContent = "FAILED ✗";
+        consistency.className = "failed";
+    }
+
+
+    document.getElementById("progressText").textContent =
+        "Pipeline Completed Successfully";
+
+
+    document.getElementById("progressBar").style.width =
+        "100%";
+
+
+    document
+        .getElementById("resultArea")
+        .classList.remove("hidden");
+
+
+    resetRunButton();
+}
+
+
+function resetRunButton() {
+
+    const button =
+        document.getElementById("runButton");
+
+    button.disabled = false;
+    button.textContent = "تشغيل Pipeline";
+}
+
+
+function formatNumber(number) {
+
+    return Number(number).toLocaleString();
+}
+
+
+function clearLog() {
+
+    document.getElementById("pipelineLog").textContent = "";
+}
+
+</script>
+
+</body>
+</html>
