@@ -1,0 +1,4 @@
+﻿order_id,order_date,status,customer_id,customer_name,customer_phone,customer_email,city,district,delivery_type,delivery_cost,payment_method,payment_status,payment_amount,currency,total_amount,items_json
+DEMO-VALID-001,2025-01-19,confirmed,CUST-V-001,Updated Customer Name,771234567,valid@example.com,Sanaa,Center,Normal,10,Cash,paid,110,YER,110,"[{""qty"": 1, ""unit_price"": 100, ""total"": 100}]"
+DEMO-CORRECTED-001,19/01/2025,confirmed,CUST-C-001,Corrected Customer,00967 771234567,corrected@@example..com,Sanaa,Center,Normal,10,Cash,paid,5000,YER,خمسة آلاف,"[{""qty"": 1, ""unit_price"": 4990, ""total"": 4990}]"
+,31/02/2025,confirmed,CUST-Q-001,Quarantine Customer,771234568,q@example.com,Sanaa,Center,Normal,10,Cash,paid,100,YER,100,{bad json}

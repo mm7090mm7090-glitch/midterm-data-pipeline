@@ -44,45 +44,68 @@
 
 CSV File
 
-&#x20;  |
+\&#x20;  |
 
-&#x20;  v
+\&#x20;  v
 
 Automatic Router
 
-&#x20;  |
+\&#x20;  |
 
-&#x20;  +-----------------------+
+\&#x20;  +-----------------------+
 
-&#x20;  |                       |
+\&#x20;  |                       |
 
 Small File             Large File
 
 <= 200 MB              > 200 MB
 
-&#x20;  |                       |
+\&#x20;  |                       |
 
 Python Batch             PySpark
 
-&#x20;  |                       |
+\&#x20;  |                       |
 
-&#x20;  +------- MongoDB Raw ---+
+\&#x20;  +------- MongoDB Raw ---+
 
-&#x20;              |
+\&#x20;              |
 
-&#x20;              v
+\&#x20;              v
 
-&#x20;      Cleaning \& Validation
+\&#x20;      Cleaning \\\& Validation
 
-&#x20;              |
+\&#x20;              |
 
-&#x20;      +-------+---------+
+\&#x20;      +-------+---------+
 
-&#x20;      |                 |
+\&#x20;      |                 |
 
 Valid / Corrected     Quarantine
 
-&#x20;      |                 |
+\&#x20;      |                 |
 
-orders\_validated   quarantine\_orders
+orders\\\_validated   quarantine\\\_orders
+
+
+
+
+\---
+
+
+
+\## 23. Web Dashboard
+
+
+
+تم إضافة واجهة ويب باستخدام Flask لتسهيل اختبار المشروع أثناء العرض.
+
+
+
+تشغيل الواجهة:
+
+
+
+```powershell
+
+.\\run\_dashboard.bat
 

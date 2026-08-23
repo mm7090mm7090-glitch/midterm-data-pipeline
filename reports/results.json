@@ -243,6 +243,31 @@
                 "JSON_ITEMS_CORRUPTED": 1
             },
             "recorded_at": "2026-08-22T18:28:11.835984+00:00"
+        },
+        {
+            "stage": "python_batch_full_pipeline",
+            "run_id": "d8dea904-ac50-4ba4-a5d9-31a2d9f72648",
+            "file_name": "update_proof_test.csv",
+            "file_size_mb": 0.0007295608520507812,
+            "used_engine": "python_batch",
+            "read_rows": 3,
+            "loaded_raw": 3,
+            "count_valid": 1,
+            "count_corrected": 1,
+            "count_quarantine": 1,
+            "count_inserted": 0,
+            "count_updated": 1,
+            "count_unchanged": 1,
+            "seconds_elapsed": 0.09581828117370605,
+            "throughput": 31.309265447596488,
+            "batch_size": 1000,
+            "partitions": null,
+            "counts_case_error": {
+                "ID_ORDER_MISSING": 1,
+                "DATE_IMPOSSIBLE_INVALID": 1,
+                "JSON_ITEMS_CORRUPTED": 1
+            },
+            "recorded_at": "2026-08-23T16:53:18.195894+00:00"
         }
     ]
 }
