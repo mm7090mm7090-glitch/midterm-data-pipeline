@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hybrid Big Data Pipeline</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, #123950 0, transparent 27%),
+                radial-gradient(circle at top left, #162e43 0, transparent 24%),
+                #06101a;
+            color: #eef6fb;
+            line-height: 1.7;
+        }
+
+        .container {
+            width: min(1400px, 94%);
+            margin: auto;
+        }
+
+        /* HERO */
+
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-content {
+            width: 100%;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 18px;
+            margin-bottom: 22px;
+            border-radius: 30px;
+            border: 1px solid #2c718f;
+            background: rgba(33, 116, 151, 0.12);
+            color: #76dcff;
+            font-size: 14px;
+        }
+
+        h1 {
+            font-size: clamp(40px, 6vw, 76px);
+            line-height: 1.15;
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #69d7ff,
+                #70ecae
+            );
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .hero h2 {
+            font-size: clamp(22px, 3vw, 34px);
+            color: #aec5d4;
+            font-weight: 500;
+            margin-bottom: 22px;
+        }
+
+        .hero-description {
+            max-width: 900px;
+            margin: auto;
+            color: #8fa8b9;
+            font-size: 18px;
+        }
+
+        .hero-stats {
+            max-width: 1000px;
+            margin: 45px auto 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .hero-stat {
+            background: rgba(12, 29, 43, 0.85);
+            border: 1px solid #24445a;
+            border-radius: 18px;
+            padding: 22px 12px;
+        }
+
+        .hero-stat strong {
+            display: block;
+            font-size: 28px;
+            color: #74ddff;
+        }
+
+        .hero-stat span {
+            color: #879fae;
+            font-size: 14px;
+        }
+
+        /* NAV */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #213b4c;
+            background: rgba(5, 14, 23, 0.95);
+            backdrop-filter: blur(15px);
+        }
+
+        nav .container {
+            padding: 11px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #aebfca;
+            padding: 8px 13px;
+            border-radius: 9px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            background: #153449;
+            color: white;
+        }
+
+        /* SECTIONS */
+
+        section {
+            padding: 85px 0;
+        }
+
+        .section-title {
+            margin-bottom: 35px;
+        }
+
+        .section-title small {
+            color: #50c9f0;
+            font-weight: bold;
+        }
+
+        .section-title h2 {
+            font-size: clamp(29px, 4vw, 46px);
+            margin-top: 4px;
+        }
+
+        .section-title p {
+            color: #8ca4b4;
+            max-width: 900px;
+            margin-top: 8px;
+        }
+
+        /* ARCHITECTURE */
+
+        .architecture {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 11px;
+            direction: ltr;
+        }
+
+        .arch-box {
+            min-width: 145px;
+            padding: 20px 14px;
+            background: #0c1d2b;
+            border: 1px solid #28506a;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .arch-box strong {
+            display: block;
+            color: #75ddff;
+            margin-bottom: 3px;
+        }
+
+        .arch-box span {
+            color: #93a8b7;
+            font-size: 12px;
+        }
+
+        .router-box {
+            border-color: #9b7cff;
+        }
+
+        .batch-box {
+            border-color: #4cc9f0;
+        }
+
+        .spark-box {
+            border-color: #f5a44e;
+        }
+
+        .mongo-box {
+            border-color: #54d991;
+        }
+
+        .arrow {
+            font-size: 28px;
+            color: #4cc9f0;
+        }
+
+        /* RESULTS */
+
+        .result-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .result-panel {
+            background: rgba(10, 26, 39, 0.91);
+            border: 1px solid #24465b;
+            border-radius: 22px;
+            overflow: hidden;
+        }
+
+        .result-head {
+            padding: 22px;
+            border-bottom: 1px solid #24465b;
+        }
+
+        .result-head h3 {
+            font-size: 23px;
+        }
+
+        .engine {
+            display: inline-block;
+            margin-top: 7px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #17394e;
+            color: #78dcff;
+            font-size: 13px;
+        }
+
+        .spark-engine {
+            background: #432f1c;
+            color: #ffc273;
+        }
+
+        .metrics {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 13px;
+        }
+
+        .metric {
+            padding: 17px;
+            background: #081621;
+            border: 1px solid #1d3444;
+            border-radius: 14px;
+        }
+
+        .metric-label {
+            color: #8298a8;
+            font-size: 13px;
+        }
+
+        .metric-value {
+            font-size: 27px;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        .raw {
+            color: #6fd5ff;
+        }
+
+        .valid {
+            color: #58dfa0;
+        }
+
+        .corrected {
+            color: #ffca6a;
+        }
+
+        .quarantine {
+            color: #ff7389;
+        }
+
+        .consistency {
+            margin: 0 20px 20px;
+            padding: 13px;
+            border-radius: 12px;
+            color: #72e5ac;
+            background: rgba(30, 137, 84, 0.10);
+            border: 1px solid #276848;
+            text-align: center;
+        }
+
+        /* PROFESSOR TEST */
+
+        .doctor-section {
+            background:
+                radial-gradient(
+                    circle at left top,
+                    rgba(32, 105, 140, 0.17),
+                    transparent 30%
+                ),
+                #071521;
+
+            border-top: 1px solid #17374a;
+            border-bottom: 1px solid #17374a;
+        }
+
+        .test-layout {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 25px;
+        }
+
+        .upload-panel,
+        .live-panel {
+            background: #0b1d2b;
+            border: 1px solid #29465a;
+            border-radius: 22px;
+            padding: 25px;
+        }
+
+        .upload-panel h3,
+        .live-panel h3 {
+            margin-bottom: 8px;
+            font-size: 22px;
+        }
+
+        .helper {
+            color: #849bab;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .upload-box {
+            position: relative;
+            border: 2px dashed #326581;
+            background: #081722;
+            border-radius: 18px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            border-color: #5ecff7;
+            background: #0b1d2a;
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+
+        .upload-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .upload-box span {
+            color: #829baa;
+            font-size: 13px;
+        }
+
+        #csvFile {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .selected-file {
+            margin-top: 15px;
+            background: #07141f;
+            border: 1px solid #233e50;
+            border-radius: 11px;
+            padding: 12px;
+            color: #a8bdca;
+            word-break: break-all;
+        }
+
+        .run-button {
+            width: 100%;
+            margin-top: 17px;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(90deg, #239bc5, #21b978);
+            color: white;
+            transition: 0.2s;
+        }
+
+        .run-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .run-button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .job-info {
+            margin-top: 19px;
+            display: grid;
+            gap: 9px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            background: #071520;
+            border: 1px solid #1e3747;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .info-row span:first-child {
+            color: #829aaa;
+        }
+
+        .info-row span:last-child {
+            direction: ltr;
+            text-align: left;
+            color: #e7f4fb;
+            word-break: break-all;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #26394a;
+            color: #d5e7f0;
+            font-size: 13px;
+        }
+
+        .status-running {
+            background: rgba(40, 142, 190, 0.18);
+            color: #69d5ff;
+        }
+
+        .status-completed {
+            background: rgba(44, 158, 98, 0.18);
+            color: #68e39f;
+        }
+
+        .status-failed {
+            background: rgba(185, 53, 76, 0.18);
+            color: #ff8095;
+        }
+
+        .live-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .live-metric {
+            background: #07141e;
+            border: 1px solid #1f3746;
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .live-metric span {
+            color: #8199a9;
+            display: block;
+            font-size: 11px;
+        }
+
+        .live-metric strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 19px;
+        }
+
+        .write-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .write-card {
+            text-align: center;
+            background: #07141e;
+            border: 1px solid #203846;
+            padding: 13px;
+            border-radius: 12px;
+        }
+
+        .write-card span {
+            display: block;
+            color: #8197a6;
+            font-size: 11px;
+        }
+
+        .write-card strong {
+            font-size: 20px;
+        }
+
+        .log-box {
+            direction: ltr;
+            text-align: left;
+            height: 365px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            background: #030a0f;
+            border: 1px solid #1f3746;
+            border-radius: 12px;
+            padding: 15px;
+            color: #a9c4d3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .live-consistency {
+            margin-top: 15px;
+            padding: 12px;
+            text-align: center;
+            border-radius: 11px;
+            border: 1px solid #2b495a;
+            background: #081722;
+            color: #91a8b6;
+        }
+
+        .live-consistency.passed {
+            border-color: #286a4a;
+            background: rgba(33, 137, 80, 0.09);
+            color: #70e4a4;
+        }
+
+        .live-consistency.failed {
+            border-color: #783345;
+            background: rgba(164, 44, 66, 0.1);
+            color: #ff8095;
+        }
+
+        /* TABLE */
+
+        .comparison {
+            overflow-x: auto;
+            border: 1px solid #264354;
+            border-radius: 17px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0a1a27;
+        }
+
+        th,
+        td {
+            padding: 17px;
+            border-bottom: 1px solid #203848;
+            text-align: center;
+        }
+
+        th {
+            background: #10283a;
+            color: #77d7ff;
+        }
+
+        td {
+            color: #b1c1cc;
+        }
+
+        /* RULES */
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .rule-card {
+            background: #0b1b28;
+            border: 1px solid #223d4e;
+            padding: 22px;
+            border-radius: 17px;
+            transition: 0.2s;
+        }
+
+        .rule-card:hover {
+            transform: translateY(-3px);
+            border-color: #458faf;
+        }
+
+        .rule-number {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            background: #153d54;
+            color: #6dd7ff;
+            font-weight: bold;
+            margin-bottom: 13px;
+        }
+
+        .rule-card h3 {
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .rule-card p {
+            color: #8ca3b2;
+            font-size: 14px;
+        }
+
+        /* ERRORS */
+
+        .error-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 11px;
+        }
+
+        .error {
+            direction: ltr;
+            padding: 10px 13px;
+            border-radius: 10px;
+            background: rgba(171, 52, 73, 0.12);
+            border: 1px solid #693041;
+            color: #ff8ca0;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        /* UPSERT */
+
+        .proof-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 25px;
+        }
+
+        .proof-card {
+            text-align: center;
+            background: #0c1e2c;
+            border: 1px solid #294253;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .proof-card strong {
+            font-size: 37px;
+            display: block;
+        }
+
+        /* SCREENSHOTS */
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .gallery-card {
+            overflow: hidden;
+            background: #0b1b28;
+            border: 1px solid #263f50;
+            border-radius: 17px;
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 340px;
+            object-fit: contain;
+            background: #03080c;
+            display: block;
+            cursor: pointer;
+        }
+
+        .gallery-caption {
+            padding: 16px 18px;
+        }
+
+        .gallery-caption h3 {
+            font-size: 17px;
+        }
+
+        .gallery-caption p {
+            color: #8ba1b0;
+            font-size: 13px;
+        }
+
+        .note {
+            text-align: center;
+            color: #8298a8;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        footer {
+            padding: 35px 0;
+            text-align: center;
+            border-top: 1px solid #213747;
+            color: #7f95a4;
+        }
+
+        .success-text {
+            color: #64dfa0;
+        }
+
+        @media (max-width: 1050px) {
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .test-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .rules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 850px) {
+            .result-wrapper,
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .live-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-stats,
+            .rules-grid,
+            .proof-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics,
+            .write-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-card img {
+                height: 230px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="hero">
+    <div class="container hero-content">
+
+        <div class="badge">
+            Big Data Midterm Project
+        </div>
+
+        <h1>Hybrid Big Data Pipeline</h1>
+
+        <h2>
+            نظام هجين لمعالجة وتنظيف بيانات الطلبات
+        </h2>
+
+        <p class="hero-description">
+            يقوم النظام باختيار محرك المعالجة تلقائيًا حسب حجم ملف CSV.
+            الملفات الصغيرة تتم معالجتها باستخدام Python Batch،
+            بينما الملفات الكبيرة تتم معالجتها باستخدام Apache PySpark،
+            ثم يتم تطبيق قواعد جودة البيانات وتخزين النتائج في MongoDB.
+        </p>
+
+        <div class="hero-stats">
+
+            <div class="hero-stat">
+                <strong>30M</strong>
+                <span>سجل تم اختباره</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>12.35 GB</strong>
+                <span>حجم الملف الكبير</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>100K</strong>
+                <span>عينة Python Batch</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>9</strong>
+                <span>قواعد Data Quality</span>
+            </div>
+
+        </div>
+
+    </div>
+</header>
+
+
+<nav>
+    <div class="container">
+        <a href="#architecture">المعمارية</a>
+        <a href="#results">النتائج</a>
+        <a href="#doctor-test">اختبار الدكتور</a>
+        <a href="#quality">جودة البيانات</a>
+        <a href="#upsert">Idempotency</a>
+        <a href="#screenshots">صور الإثبات</a>
+    </div>
+</nav>
+
+
+<section id="architecture">
+    <div class="container">
+
+        <div class="section-title">
+            <small>01 — SYSTEM ARCHITECTURE</small>
+
+            <h2>معمارية النظام</h2>
+
+            <p>
+                يقوم File Router بقياس حجم ملف CSV تلقائيًا.
+                إذا كان حجم الملف 200MB أو أقل يتم استخدام Python Batch،
+                وإذا كان أكبر من 200MB يتم استخدام Apache PySpark.
+            </p>
+        </div>
+
+        <div class="architecture">
+
+            <div class="arch-box">
+                <strong>CSV</strong>
+                <span>Dirty Orders Data</span>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="arch-box router-box">
+                <strong>File Router</strong>
+                <span>Threshold = 200 MB</span>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="arch-box batch-box">
+                <strong>Python Batch</strong>
+                <span>Small Files</span>
+            </div>
+
+            <div class="arch-box spark-box">
+                <strong>Apache Spark</strong>
+                <span>Large Files</span>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="arch-box">
+                <strong>ELT</strong>
+                <span>Data Quality</span>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="arch-box mongo-box">
+                <strong>MongoDB</strong>
+                <span>Raw / Validated / Quarantine</span>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section id="results">
+    <div class="container">
+
+        <div class="section-title">
+            <small>02 — ACTUAL TEST RESULTS</small>
+
+            <h2>نتائج التشغيل الفعلية</h2>
+
+            <p>
+                تم اختبار Python Batch على عينة من 100 ألف سجل،
+                واختبار Apache PySpark على ملف يحتوي على 30 مليون سجل.
+            </p>
+        </div>
+
+
+        <div class="result-wrapper">
+
+            <div class="result-panel">
+
+                <div class="result-head">
+                    <h3>العينة الصغيرة — 100,000 سجل</h3>
+                    <span class="engine">Python Batch</span>
+                </div>
+
+                <div class="metrics">
+
+                    <div class="metric">
+                        <div class="metric-label">RAW</div>
+                        <div class="metric-value raw">100,000</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">VALID</div>
+                        <div class="metric-value valid">79,517</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">CORRECTED</div>
+                        <div class="metric-value corrected">11,559</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">QUARANTINE</div>
+                        <div class="metric-value quarantine">8,924</div>
+                    </div>
+
+                </div>
+
+                <div class="consistency">
+                    ✓ 100,000 = 79,517 + 11,559 + 8,924
+                    <br>
+                    Consistency Check PASSED
+                </div>
+
+            </div>
+
+
+            <div class="result-panel">
+
+                <div class="result-head">
+                    <h3>الملف الكبير — 30,000,000 سجل</h3>
+                    <span class="engine spark-engine">Apache PySpark</span>
+                </div>
+
+                <div class="metrics">
+
+                    <div class="metric">
+                        <div class="metric-label">RAW</div>
+                        <div class="metric-value raw">30,000,000</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">VALID</div>
+                        <div class="metric-value valid">208,594</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">CORRECTED</div>
+                        <div class="metric-value corrected">27,580,876</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">QUARANTINE</div>
+                        <div class="metric-value quarantine">2,210,530</div>
+                    </div>
+
+                </div>
+
+                <div class="consistency">
+                    ✓ 30,000,000 = 208,594 + 27,580,876 + 2,210,530
+                    <br>
+                    Consistency Check PASSED
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section id="doctor-test" class="doctor-section">
+    <div class="container">
+
+        <div class="section-title">
+
+            <small>03 — LIVE PROFESSOR TEST</small>
+
+            <h2>اختبار بيانات الدكتور</h2>
+
+            <p>
+                اختر ملف CSV وسيقوم النظام بتحديد محرك المعالجة تلقائيًا،
+                وتشغيل الـPipeline الحقيقي ثم عرض النتائج مباشرة.
+            </p>
+
+        </div>
+
+
+        <div class="test-layout">
+
+            <div class="upload-panel">
+
+                <h3>اختيار ملف الاختبار</h3>
+
+                <p class="helper">
+                    يتم اختيار Python Batch أو PySpark تلقائيًا حسب حجم الملف.
+                </p>
+
+                <div class="upload-box">
+
+                    <div class="upload-icon">📄</div>
+
+                    <strong>اختر ملف CSV</strong>
+
+                    <span>
+                        اضغط هنا لاختيار ملف بيانات الدكتور
+                    </span>
+
+                    <input
+                        type="file"
+                        id="csvFile"
+                        accept=".csv,text/csv"
+                    >
+
+                </div>
+
+                <div
+                    class="selected-file"
+                    id="selectedFile"
+                >
+                    لم يتم اختيار ملف بعد
+                </div>
+
+                <button
+                    class="run-button"
+                    id="runButton"
+                    onclick="runPipeline()"
+                    disabled
+                >
+                    تشغيل Hybrid Pipeline
+                </button>
+
+                <div class="job-info">
+
+                    <div class="info-row">
+                        <span>الحالة</span>
+                        <span
+                            id="jobStatus"
+                            class="status-badge"
+                        >
+                            جاهز
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Engine</span>
+                        <span id="engineValue">-</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span>حجم الملف</span>
+                        <span id="fileSizeValue">-</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Run ID</span>
+                        <span id="runIdValue">-</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span>سبب اختيار المحرك</span>
+                        <span id="reasonValue">-</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="live-panel">
+
+                <h3>نتائج الاختبار المباشر</h3>
+
+                <p class="helper">
+                    تظهر النتائج النهائية بعد اكتمال تشغيل Pipeline.
+                </p>
+
+                <div class="live-metrics">
+
+                    <div class="live-metric">
+                        <span>RAW</span>
+                        <strong class="raw" id="liveRaw">0</strong>
+                    </div>
+
+                    <div class="live-metric">
+                        <span>VALID</span>
+                        <strong class="valid" id="liveValid">0</strong>
+                    </div>
+
+                    <div class="live-metric">
+                        <span>CORRECTED</span>
+                        <strong
+                            class="corrected"
+                            id="liveCorrected"
+                        >
+                            0
+                        </strong>
+                    </div>
+
+                    <div class="live-metric">
+                        <span>QUARANTINE</span>
+                        <strong
+                            class="quarantine"
+                            id="liveQuarantine"
+                        >
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="write-metrics">
+
+                    <div class="write-card">
+                        <span>INSERTED</span>
+                        <strong class="valid" id="liveInserted">0</strong>
+                    </div>
+
+                    <div class="write-card">
+                        <span>UPDATED</span>
+                        <strong
+                            class="corrected"
+                            id="liveUpdated"
+                        >
+                            0
+                        </strong>
+                    </div>
+
+                    <div class="write-card">
+                        <span>UNCHANGED</span>
+                        <strong class="raw" id="liveUnchanged">0</strong>
+                    </div>
+
+                </div>
+
+                <div
+                    class="log-box"
+                    id="liveLog"
+                >جاهز لاستقبال ملف الاختبار...</div>
+
+                <div
+                    class="live-consistency"
+                    id="liveConsistency"
+                >
+                    Consistency Check: لم يتم التشغيل بعد
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<section>
+    <div class="container">
+
+        <div class="section-title">
+            <small>04 — PROCESSING ENGINES</small>
+            <h2>مقارنة مساري المعالجة</h2>
+        </div>
+
+        <div class="comparison">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>العنصر</th>
+                        <th>Python Batch</th>
+                        <th>Apache PySpark</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>الاستخدام</td>
+                        <td>الملفات الصغيرة</td>
+                        <td>الملفات الكبيرة</td>
+                    </tr>
+
+                    <tr>
+                        <td>Router Threshold</td>
+                        <td>≤ 200 MB</td>
+                        <td>&gt; 200 MB</td>
+                    </tr>
+
+                    <tr>
+                        <td>قراءة CSV</td>
+                        <td>Streaming + Batches</td>
+                        <td>Spark DataFrame API</td>
+                    </tr>
+
+                    <tr>
+                        <td>Memory Strategy</td>
+                        <td>لا يتم تحميل الملف كاملًا</td>
+                        <td>Distributed Processing</td>
+                    </tr>
+
+                    <tr>
+                        <td>MongoDB</td>
+                        <td>insert_many + Upsert</td>
+                        <td>MongoDB Spark Connector</td>
+                    </tr>
+
+                    <tr>
+                        <td>الاختبار الفعلي</td>
+                        <td>100,000 Rows</td>
+                        <td>30,000,000 Rows</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</section>
+
+
+<section id="quality">
+    <div class="container">
+
+        <div class="section-title">
+            <small>05 — DATA QUALITY</small>
+
+            <h2>قواعد تنظيف وتصحيح البيانات</h2>
+
+            <p>
+                قواعد التصحيح Deterministic ولا تعتمد على التخمين،
+                والبيانات الأصلية تبقى محفوظة في Raw.
+            </p>
+        </div>
+
+        <div class="rules-grid">
+
+            <div class="rule-card">
+                <div class="rule-number">1</div>
+                <h3>Arabic / Persian Digits</h3>
+                <p>تحويل الأرقام العربية والفارسية إلى أرقام قياسية.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">2</div>
+                <h3>Thousands Separators</h3>
+                <p>تنظيف الفواصل والرموز داخل القيم الرقمية.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">3</div>
+                <h3>Price Words</h3>
+                <p>تحويل كلمات الأسعار المعروفة مثل خمسة آلاف إلى 5000.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">4</div>
+                <h3>Currency</h3>
+                <p>توحيد صيغة العملة إلى YER.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">5</div>
+                <h3>Phone Number</h3>
+                <p>تنظيف وتوحيد صيغة أرقام الهواتف.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">6</div>
+                <h3>Email</h3>
+                <p>تصحيح بعض أخطاء الرموز المتكررة في البريد الإلكتروني.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">7</div>
+                <h3>Date Validation</h3>
+                <p>التحقق من التاريخ واكتشاف التواريخ غير الممكنة.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">8</div>
+                <h3>Whitespace & Synonyms</h3>
+                <p>تنظيف المسافات وتوحيد بعض النصوص المعروفة.</p>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-number">9</div>
+                <h3>Total Recalculation</h3>
+                <p>إعادة حساب الإجمالي عندما تتوفر بيانات موثوقة.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section>
+    <div class="container">
+
+        <div class="section-title">
+            <small>06 — QUARANTINE</small>
+
+            <h2>أكواد أخطاء Quarantine</h2>
+
+            <p>
+                السجل غير القابل للتصحيح لا يتم حذفه،
+                بل يتم الاحتفاظ به مع سبب الرفض.
+            </p>
+        </div>
+
+        <div class="error-list">
+
+            <span class="error">ID_ORDER_MISSING</span>
+            <span class="error">ID_CUSTOMER_MISSING</span>
+            <span class="error">DATE_IMPOSSIBLE_INVALID</span>
+            <span class="error">JSON_ITEMS_CORRUPTED</span>
+            <span class="error">ITEMS_EMPTY</span>
+            <span class="error">PRICE_UNKNOWN</span>
+            <span class="error">VALUE_NEGATIVE_AMBIGUOUS</span>
+            <span class="error">ID_ORDER_DUPLICATE</span>
+            <span class="error">ERRORS_CONFLICTING_MULTIPLE</span>
+
+        </div>
+    </div>
+</section>
+
+
+<section id="upsert">
+    <div class="container">
+
+        <div class="section-title">
+
+            <small>07 — IDEMPOTENCY & UPSERT</small>
+
+            <h2>منع تكرار Business Records</h2>
+
+            <p>
+                يستخدم النظام order_id كمفتاح Business Key.
+                إعادة معالجة نفس البيانات لا تنشئ Duplicate،
+                وإذا تغيرت بيانات سجل موجود يتم تنفيذ Update.
+            </p>
+
+        </div>
+
+        <div class="proof-grid">
+
+            <div class="proof-card">
+                <strong class="valid">0</strong>
+                Inserted
+            </div>
+
+            <div class="proof-card">
+                <strong class="corrected">1</strong>
+                Updated
+            </div>
+
+            <div class="proof-card">
+                <strong class="raw">1</strong>
+                Unchanged
+            </div>
+
+        </div>
+
+        <div
+            class="consistency"
+            style="margin-top:25px;"
+        >
+            ✓ تم تغيير customer_name لسجل موجود بنفس order_id،
+            وقام النظام بعمل Update بدل إنشاء Duplicate.
+        </div>
+
+    </div>
+</section>
+
+
+<section>
+    <div class="container">
+
+        <div class="section-title">
+            <small>08 — MONGODB STORAGE</small>
+            <h2>Collections المستخدمة</h2>
+        </div>
+
+        <div class="rules-grid">
+
+            <div class="rule-card">
+
+                <div class="rule-number">R</div>
+
+                <h3>orders_raw</h3>
+
+                <p>
+                    يحفظ السجل الأصلي مع Run ID وSource File
+                    وIngest Time وEngine وRaw Record.
+                </p>
+
+            </div>
+
+            <div class="rule-card">
+
+                <div class="rule-number">V</div>
+
+                <h3>orders_validated</h3>
+
+                <p>
+                    يحتوي على Valid وCorrected Records
+                    مع Unique order_id ودعم Idempotent Upsert.
+                </p>
+
+            </div>
+
+            <div class="rule-card">
+
+                <div class="rule-number">Q</div>
+
+                <h3>quarantine_orders</h3>
+
+                <p>
+                    يحفظ السجلات غير القابلة للقبول
+                    مع Error Codes بدل حذف البيانات.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<section id="screenshots">
+    <div class="container">
+
+        <div class="section-title">
+
+            <small>09 — PROJECT EVIDENCE</small>
+
+            <h2>صور إثبات تشغيل المشروع</h2>
+
+            <p>
+                اضغط على أي صورة لفتحها بالحجم الكامل.
+            </p>
+
+        </div>
+
+
+        <div class="gallery">
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/router_proof.png"
+                    alt="Router Proof"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Automatic Router Proof</h3>
+
+                    <p>
+                        إثبات اختيار Python Batch أو PySpark حسب حجم الملف.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/spark_30m_final_result.png"
+                    alt="Spark 30 Million Result"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>30 Million Spark Result</h3>
+
+                    <p>
+                        النتيجة النهائية لمعالجة 30 مليون سجل.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/spark_ui.png"
+                    alt="Spark UI"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Apache Spark UI</h3>
+
+                    <p>
+                        إثبات Jobs وStages وTasks في Apache Spark.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/mongodb_raw.png"
+                    alt="MongoDB Raw"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>MongoDB Raw Collection</h3>
+
+                    <p>
+                        السجلات الأصلية قبل Data Quality Processing.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/mongodb_valid_view.png"
+                    alt="MongoDB Valid"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Valid Orders</h3>
+
+                    <p>
+                        السجلات المصنفة Valid في MongoDB.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/mongodb_corrected_view.png"
+                    alt="MongoDB Corrected"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Corrected Orders</h3>
+
+                    <p>
+                        السجلات التي تم تصحيحها بقواعد Deterministic.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/mongodb_quarantine.png"
+                    alt="MongoDB Quarantine"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Quarantine Orders</h3>
+
+                    <p>
+                        السجلات غير المقبولة مع Error Codes.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/idempotency_proof.png"
+                    alt="Idempotency Proof"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Idempotency Proof</h3>
+
+                    <p>
+                        إثبات عدم إنشاء Duplicate عند إعادة تشغيل نفس البيانات.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="gallery-card">
+
+                <img
+                    src="/screenshots/update_proof.png"
+                    alt="Update Proof"
+                    onclick="window.open(this.src)"
+                >
+
+                <div class="gallery-caption">
+                    <h3>Update / Upsert Proof</h3>
+
+                    <p>
+                        إثبات تحديث سجل موجود بدل إنشاء سجل جديد.
+                    </p>
+                </div>
+
+            </div>
+
+            <!--
+            تم حذف dashboard_live_test.png نهائياً من الواجهة
+            -->
+
+        </div>
+
+        <p class="note">
+            جميع النتائج والصور مأخوذة من التشغيل الفعلي للمشروع.
+        </p>
+
+    </div>
+</section>
+
+
+<footer>
+    <div class="container">
+
+        Hybrid Big Data Pipeline
+
+        <br>
+
+        <span class="success-text">
+            Python Batch • Apache Spark • MongoDB • Flask
+        </span>
+
+    </div>
+</footer>
+
+
+<script>
+
+    const csvFile =
+        document.getElementById("csvFile");
+
+    const selectedFile =
+        document.getElementById("selectedFile");
+
+    const runButton =
+        document.getElementById("runButton");
+
+    const jobStatus =
+        document.getElementById("jobStatus");
+
+    const engineValue =
+        document.getElementById("engineValue");
+
+    const fileSizeValue =
+        document.getElementById("fileSizeValue");
+
+    const runIdValue =
+        document.getElementById("runIdValue");
+
+    const reasonValue =
+        document.getElementById("reasonValue");
+
+    const liveRaw =
+        document.getElementById("liveRaw");
+
+    const liveValid =
+        document.getElementById("liveValid");
+
+    const liveCorrected =
+        document.getElementById("liveCorrected");
+
+    const liveQuarantine =
+        document.getElementById("liveQuarantine");
+
+    const liveInserted =
+        document.getElementById("liveInserted");
+
+    const liveUpdated =
+        document.getElementById("liveUpdated");
+
+    const liveUnchanged =
+        document.getElementById("liveUnchanged");
+
+    const liveLog =
+        document.getElementById("liveLog");
+
+    const liveConsistency =
+        document.getElementById("liveConsistency");
+
+
+    let currentJobId = null;
+    let pollTimer = null;
+
+
+    csvFile.addEventListener(
+        "change",
+        function () {
+
+            if (csvFile.files.length === 0) {
+
+                selectedFile.textContent =
+                    "لم يتم اختيار ملف بعد";
+
+                runButton.disabled = true;
+
+                return;
+            }
+
+            const file =
+                csvFile.files[0];
+
+            const sizeMB =
+                file.size / (1024 * 1024);
+
+            selectedFile.innerHTML =
+                "<strong>" +
+                escapeHtml(file.name) +
+                "</strong><br>" +
+                sizeMB.toFixed(2) +
+                " MB";
+
+            runButton.disabled = false;
+        }
+    );
+
+
+    async function runPipeline() {
+
+        if (csvFile.files.length === 0) {
+            alert("اختر ملف CSV أولًا.");
+            return;
+        }
+
+        if (pollTimer) {
+            clearTimeout(pollTimer);
+            pollTimer = null;
+        }
+
+        resetLiveResults();
+
+        runButton.disabled = true;
+
+        runButton.textContent =
+            "جاري رفع وتشغيل الملف...";
+
+        setStatus(
+            "جاري الرفع...",
+            "running"
+        );
+
+        liveLog.textContent =
+            "جاري رفع ملف CSV إلى النظام...\n";
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            csvFile.files[0]
+        );
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/run",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.error ||
+                    "حدث خطأ أثناء تشغيل Pipeline"
+                );
+            }
+
+            currentJobId =
+                data.job_id;
+
+            runIdValue.textContent =
+                data.run_id || "-";
+
+            engineValue.textContent =
+                formatEngine(data.engine);
+
+            fileSizeValue.textContent =
+                formatNumber(data.file_size_mb) +
+                " MB";
+
+            reasonValue.textContent =
+                data.reason || "-";
+
+            setStatus(
+                "قيد التشغيل",
+                "running"
+            );
+
+            liveLog.textContent =
+                "تم رفع الملف بنجاح.\n" +
+                "تم إنشاء Job جديد.\n" +
+                "Run ID: " +
+                data.run_id +
+                "\n" +
+                "Engine: " +
+                formatEngine(data.engine) +
+                "\n\n" +
+                "جاري تشغيل الـPipeline...\n";
+
+            pollJob();
+
+        }
+
+        catch (error) {
+
+            setStatus(
+                "فشل",
+                "failed"
+            );
+
+            liveLog.textContent +=
+                "\nERROR: " +
+                error.message;
+
+            liveConsistency.textContent =
+                "Pipeline Failed";
+
+            liveConsistency.className =
+                "live-consistency failed";
+
+            runButton.disabled = false;
+
+            runButton.textContent =
+                "تشغيل Hybrid Pipeline";
+        }
+    }
+
+
+    async function pollJob() {
+
+        if (!currentJobId) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/status/" +
+                    currentJobId
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.error ||
+                    "تعذر قراءة حالة Job"
+                );
+            }
+
+            updateJobView(data);
+
+            if (
+                data.status === "completed" ||
+                data.status === "failed"
+            ) {
+
+                runButton.disabled = false;
+
+                runButton.textContent =
+                    "تشغيل Hybrid Pipeline";
+
+                pollTimer = null;
+
+                return;
+            }
+
+            pollTimer =
+                setTimeout(
+                    pollJob,
+                    1200
+                );
+
+        }
+
+        catch (error) {
+
+            liveLog.textContent +=
+                "\n\nSTATUS ERROR: " +
+                error.message;
+
+            pollTimer =
+                setTimeout(
+                    pollJob,
+                    2000
+                );
+        }
+    }
+
+
+    function updateJobView(data) {
+
+        runIdValue.textContent =
+            data.run_id || "-";
+
+        engineValue.textContent =
+            formatEngine(data.engine);
+
+        fileSizeValue.textContent =
+            formatNumber(data.file_size_mb) +
+            " MB";
+
+        reasonValue.textContent =
+            data.reason || "-";
+
+
+        if (data.status === "queued") {
+
+            setStatus(
+                "في الانتظار",
+                "running"
+            );
+
+        } else if (data.status === "running") {
+
+            setStatus(
+                "قيد التشغيل",
+                "running"
+            );
+
+        } else if (data.status === "completed") {
+
+            setStatus(
+                "اكتمل بنجاح",
+                "completed"
+            );
+
+        } else if (data.status === "failed") {
+
+            setStatus(
+                "فشل",
+                "failed"
+            );
+        }
+
+
+        if (Array.isArray(data.log)) {
+
+            liveLog.textContent =
+                data.log.join("\n");
+
+            liveLog.scrollTop =
+                liveLog.scrollHeight;
+        }
+
+
+        const metrics =
+            data.metrics || {};
+
+
+        liveRaw.textContent =
+            formatNumber(metrics.raw || 0);
+
+        liveValid.textContent =
+            formatNumber(metrics.valid || 0);
+
+        liveCorrected.textContent =
+            formatNumber(metrics.corrected || 0);
+
+        liveQuarantine.textContent =
+            formatNumber(metrics.quarantine || 0);
+
+        liveInserted.textContent =
+            formatNumber(metrics.inserted || 0);
+
+        liveUpdated.textContent =
+            formatNumber(metrics.updated || 0);
+
+        liveUnchanged.textContent =
+            formatNumber(metrics.unchanged || 0);
+
+
+        if (data.status === "completed") {
+
+            const raw =
+                Number(metrics.raw || 0);
+
+            const valid =
+                Number(metrics.valid || 0);
+
+            const corrected =
+                Number(metrics.corrected || 0);
+
+            const quarantine =
+                Number(metrics.quarantine || 0);
+
+
+            if (
+                raw ===
+                valid +
+                corrected +
+                quarantine
+            ) {
+
+                liveConsistency.innerHTML =
+                    "✓ " +
+                    formatNumber(raw) +
+                    " = " +
+                    formatNumber(valid) +
+                    " + " +
+                    formatNumber(corrected) +
+                    " + " +
+                    formatNumber(quarantine) +
+                    "<br>Consistency Check PASSED";
+
+                liveConsistency.className =
+                    "live-consistency passed";
+
+            } else {
+
+                liveConsistency.textContent =
+                    "Consistency Check يحتاج مراجعة";
+
+                liveConsistency.className =
+                    "live-consistency failed";
+            }
+        }
+
+
+        if (data.status === "failed") {
+
+            liveConsistency.textContent =
+                "Pipeline Failed: " +
+                (data.error || "Unknown Error");
+
+            liveConsistency.className =
+                "live-consistency failed";
+        }
+    }
+
+
+    function resetLiveResults() {
+
+        liveRaw.textContent = "0";
+        liveValid.textContent = "0";
+        liveCorrected.textContent = "0";
+        liveQuarantine.textContent = "0";
+
+        liveInserted.textContent = "0";
+        liveUpdated.textContent = "0";
+        liveUnchanged.textContent = "0";
+
+        engineValue.textContent = "-";
+        fileSizeValue.textContent = "-";
+        runIdValue.textContent = "-";
+        reasonValue.textContent = "-";
+
+        liveConsistency.textContent =
+            "Consistency Check: جاري انتظار النتائج";
+
+        liveConsistency.className =
+            "live-consistency";
+    }
+
+
+    function setStatus(text, type) {
+
+        jobStatus.textContent =
+            text;
+
+        jobStatus.className =
+            "status-badge";
+
+        if (type === "running") {
+
+            jobStatus.classList.add(
+                "status-running"
+            );
+
+        } else if (type === "completed") {
+
+            jobStatus.classList.add(
+                "status-completed"
+            );
+
+        } else if (type === "failed") {
+
+            jobStatus.classList.add(
+                "status-failed"
+            );
+        }
+    }
+
+
+    function formatEngine(engine) {
+
+        if (engine === "python_batch") {
+            return "Python Batch";
+        }
+
+        if (engine === "pyspark") {
+            return "Apache PySpark";
+        }
+
+        return engine || "-";
+    }
+
+
+    function formatNumber(value) {
+
+        const number =
+            Number(value);
+
+        if (!Number.isFinite(number)) {
+            return value || "0";
+        }
+
+        return number.toLocaleString(
+            "en-US",
+            {
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+
+    function escapeHtml(text) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            text;
+
+        return div.innerHTML;
+    }
+
+</script>
+
+</body>
+</html>
