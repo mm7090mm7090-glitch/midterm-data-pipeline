@@ -105,7 +105,31 @@ MongoDB Local Server
 Windows 11
 ```
 
+قبل تشغيل المشروع، تأكد أن Python وJava وSpark متاحة من PowerShell:
+
+```powershell
+python --version
+java -version
+spark-submit --version
+```
+
 يجب أن تكون MongoDB تعمل قبل تشغيل المشروع.
+
+يمكن التحقق من اتصال MongoDB باستخدام:
+
+```powershell
+mongosh --eval "db.runCommand({ ping: 1 })"
+```
+
+إذا ظهر رد يحتوي على:
+
+```text
+ok: 1
+```
+
+فهذا يعني أن MongoDB تعمل ويمكن للمشروع الاتصال بها.
+
+> ملاحظة: يجب أن يكون الأمر `spark-submit` متاحًا في `PATH` حتى يعمل مسار PySpark.
 
 ---
 
@@ -141,7 +165,21 @@ $env:PYSPARK_PYTHON = "$PWD\.venv\Scripts\python.exe"
 $env:PYSPARK_DRIVER_PYTHON = "$PWD\.venv\Scripts\python.exe"
 ```
 
-يجب أن يكون Spark وJava معرفين بشكل صحيح على الجهاز.
+يستخدم المشروع مجلدًا مؤقتًا محليًا لـSpark داخل المشروع تلقائيًا:
+
+```text
+.spark-temp
+```
+
+ولا يعتمد على مسار ثابت خاص بجهاز معين.
+
+إذا أردت تغيير هذا المجلد، يمكن تحديد متغير البيئة الاختياري:
+
+```powershell
+$env:SPARK_LOCAL_DIR = "D:\spark-temp"
+```
+
+إذا لم يتم تعيين `SPARK_LOCAL_DIR` فسيستخدم المشروع `.spark-temp` تلقائيًا.
 
 ---
 
