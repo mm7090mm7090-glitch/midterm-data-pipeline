@@ -24,6 +24,7 @@ def make_base_record():
         "items_json": json.dumps(
             [
                 {
+                    "sku": "SKU-1",
                     "qty": 1,
                     "unit_price": 100,
                     "total": 100,
@@ -74,9 +75,11 @@ def test_corrupted_json_goes_to_quarantine():
 
 def test_negative_value_goes_to_quarantine():
     record = make_base_record()
+
     record["items_json"] = json.dumps(
         [
             {
+                "sku": "SKU-1",
                 "qty": -1,
                 "unit_price": 100,
                 "total": -100,

@@ -537,6 +537,41 @@
                 "INVALID_PHONE_TOO_SHORT": 250
             },
             "recorded_at": "2026-10-04T09:00:53.842816+00:00"
+        },
+        {
+            "stage": "python_batch_full_pipeline",
+            "run_id": "fae436e6-fa9a-4b79-b1ac-26565e369815",
+            "file_name": "01_student_test_small.csv",
+            "file_size_mb": 8.606629371643066,
+            "used_engine": "python_batch",
+            "read_rows": 20000,
+            "loaded_raw": 20000,
+            "count_valid": 12000,
+            "count_corrected": 5000,
+            "count_quarantine": 3000,
+            "count_inserted": 0,
+            "count_updated": 0,
+            "count_unchanged": 17000,
+            "seconds_elapsed": 14.039007425308228,
+            "throughput": 1424.6021384635671,
+            "batch_size": 1000,
+            "partitions": null,
+            "counts_case_error": {
+                "ITEMS_EMPTY": 250,
+                "EMAIL_MISSING_DOMAIN": 500,
+                "UNKNOWN_ORDER_STATUS": 250,
+                "JSON_ITEMS_CORRUPTED": 500,
+                "VALUE_NEGATIVE_AMBIGUOUS": 250,
+                "MISSING_ITEM_SKU": 250,
+                "ID_CUSTOMER_MISSING": 500,
+                "UNKNOWN_CURRENCY": 250,
+                "DATE_IMPOSSIBLE_INVALID": 250,
+                "PRICE_UNKNOWN": 250,
+                "ERRORS_CONFLICTING_MULTIPLE": 250,
+                "ID_ORDER_MISSING": 250,
+                "INVALID_PHONE_TOO_SHORT": 250
+            },
+            "recorded_at": "2026-10-04T09:49:00.370211+00:00"
         }
     ]
 }
