@@ -2,16 +2,16 @@
   "database": "bigdata_final_test",
   "collection": "orders_validated",
   "sample_values": {
-    "city": "تعز",
-    "status": "ملغي",
-    "start_date": "2026-05-21T00:00:00",
-    "end_date": "2026-05-21T23:59:59"
+    "city": "ذمار",
+    "status": "تم التسليم",
+    "start_date": "2026-01-01T00:00:00",
+    "end_date": "2026-01-01T23:59:59"
   },
   "comparisons": {
     "orders_by_city": {
       "before": {
         "n_returned": 100,
-        "execution_time_ms": 12,
+        "execution_time_ms": 43,
         "total_docs_examined": 17000,
         "total_keys_examined": 0,
         "winning_plan_stages": [
@@ -21,22 +21,22 @@
       },
       "after": {
         "n_returned": 100,
-        "execution_time_ms": 20,
-        "total_docs_examined": 744,
-        "total_keys_examined": 744,
+        "execution_time_ms": 52,
+        "total_docs_examined": 649,
+        "total_keys_examined": 649,
         "winning_plan_stages": [
           "LIMIT",
           "FETCH",
           "IXSCAN"
         ]
       },
-      "docs_examined_reduction": 16256,
-      "keys_examined_change": 744
+      "docs_examined_reduction": 16351,
+      "keys_examined_change": 649
     },
     "orders_by_date_range": {
       "before": {
-        "n_returned": 94,
-        "execution_time_ms": 18,
+        "n_returned": 61,
+        "execution_time_ms": 35,
         "total_docs_examined": 17000,
         "total_keys_examined": 0,
         "winning_plan_stages": [
@@ -45,23 +45,23 @@
         ]
       },
       "after": {
-        "n_returned": 94,
+        "n_returned": 61,
         "execution_time_ms": 0,
-        "total_docs_examined": 94,
-        "total_keys_examined": 94,
+        "total_docs_examined": 61,
+        "total_keys_examined": 61,
         "winning_plan_stages": [
           "LIMIT",
           "FETCH",
           "IXSCAN"
         ]
       },
-      "docs_examined_reduction": 16906,
-      "keys_examined_change": 94
+      "docs_examined_reduction": 16939,
+      "keys_examined_change": 61
     },
     "orders_by_status_and_date": {
       "before": {
-        "n_returned": 15,
-        "execution_time_ms": 18,
+        "n_returned": 11,
+        "execution_time_ms": 35,
         "total_docs_examined": 17000,
         "total_keys_examined": 0,
         "winning_plan_stages": [
@@ -70,18 +70,18 @@
         ]
       },
       "after": {
-        "n_returned": 15,
-        "execution_time_ms": 6,
-        "total_docs_examined": 15,
-        "total_keys_examined": 15,
+        "n_returned": 11,
+        "execution_time_ms": 8,
+        "total_docs_examined": 11,
+        "total_keys_examined": 11,
         "winning_plan_stages": [
           "LIMIT",
           "FETCH",
           "IXSCAN"
         ]
       },
-      "docs_examined_reduction": 16985,
-      "keys_examined_change": 15
+      "docs_examined_reduction": 16989,
+      "keys_examined_change": 11
     }
   }
 }

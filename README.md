@@ -188,7 +188,7 @@ python -m src.mongo_setup
 python -m src.main --input .\data\your_file.csv
 ```
 
-مثال:
+مثال محلي أثناء الاختبار:
 
 ```powershell
 python -m src.main --input .\data\01_student_test_small.csv
@@ -528,6 +528,73 @@ status + order_date
 python -m src.indexes
 ```
 
+### سبب اختيار كل Index
+
+#### 1. idx_city
+
+يستخدم الحقل:
+
+```text
+city
+```
+
+السبب: الاستعلام `orders_by_city` يبحث عن الطلبات حسب المدينة، لذلك يساعد هذا الفهرس MongoDB على الوصول مباشرة إلى سجلات المدينة المطلوبة بدل فحص جميع السجلات.
+
+الاستعلام المستفيد:
+
+```text
+orders_by_city
+```
+
+#### 2. idx_customer_id
+
+يستخدم الحقل:
+
+```text
+customer_id
+```
+
+السبب: الاستعلام `orders_by_customer` يبحث عن طلبات عميل محدد باستخدام `customer_id`، لذلك يقلل عدد Documents التي يحتاج MongoDB إلى فحصها.
+
+الاستعلام المستفيد:
+
+```text
+orders_by_customer
+```
+
+#### 3. idx_order_date
+
+يستخدم الحقل:
+
+```text
+order_date
+```
+
+السبب: الاستعلام `orders_by_date_range` يستخدم نطاقًا زمنيًا على `order_date`، لذلك يسمح الفهرس لـMongoDB بتنفيذ Range Scan بدل تنفيذ Collection Scan كامل.
+
+الاستعلام المستفيد:
+
+```text
+orders_by_date_range
+```
+
+#### 4. idx_status_order_date
+
+هذا Compound Index مكوّن من:
+
+```text
+status
+order_date
+```
+
+السبب: الاستعلام `orders_by_status_and_date` يبحث حسب `status` ويطبق نطاقًا زمنيًا على `order_date`، لذلك تم وضع الحقلين معًا في Compound Index لخدمة هذا الاستعلام مباشرة.
+
+الاستعلام المستفيد:
+
+```text
+orders_by_status_and_date
+```
+
 ---
 
 ## 23. Explain Execution Statistics
@@ -556,7 +623,25 @@ python -m src.explain_analysis
 reports/explain_results.json
 ```
 
-نتيجة اختبار فعلية:
+### أثر الـIndexes
+
+قبل إنشاء الـIndexes كانت الاستعلامات تعتمد على:
+
+```text
+COLLSCAN
+```
+
+أي فحص Collection بشكل واسع.
+
+بعد إنشاء الـIndexes أصبحت تعتمد على:
+
+```text
+IXSCAN
+```
+
+أي استخدام الفهرس للوصول إلى عدد أقل بكثير من السجلات.
+
+مثال من آخر اختبار فعلي:
 
 ```text
 orders_by_city
@@ -566,7 +651,7 @@ Docs Examined: 17000
 Plan: COLLSCAN
 
 AFTER
-Docs Examined: 744
+Docs Examined: 649
 Plan: IXSCAN
 ```
 
@@ -578,7 +663,7 @@ Docs Examined: 17000
 Plan: COLLSCAN
 
 AFTER
-Docs Examined: 94
+Docs Examined: 61
 Plan: IXSCAN
 ```
 
@@ -590,11 +675,11 @@ Docs Examined: 17000
 Plan: COLLSCAN
 
 AFTER
-Docs Examined: 15
+Docs Examined: 11
 Plan: IXSCAN
 ```
 
-هذا يوضح تأثير الـIndexes على تقليل عدد Documents التي يفحصها MongoDB.
+هذا يوضح أن اختيار الفهارس مرتبط مباشرة بالحقول المستخدمة داخل الاستعلامات، وأن عدد Documents التي يفحصها MongoDB انخفض بشكل كبير بعد إنشاء الفهارس.
 
 ---
 
@@ -616,7 +701,7 @@ orders_by_status
 payment_status_summary
 ```
 
-لتشغيل وعرض التقارير المتاحة:
+لعرض التقارير المتاحة:
 
 ```powershell
 python -m src.aggregations
@@ -695,9 +780,7 @@ last_refresh_at
 processed_documents
 ```
 
-عند وجود بيانات جديدة يتم اكتشاف الـDates أو Cities المتأثرة فقط.
-
-ثم يتم تحديث Keys المتأثرة فقط.
+عند وجود بيانات جديدة يتم اكتشاف الـDates أو Cities المتأثرة فقط، ثم يتم تحديث Keys المتأثرة فقط.
 
 ---
 
@@ -766,12 +849,11 @@ status
 message
 ```
 
-مثال:
+تم اختبار المهمتين يدويًا وكانت النتيجة:
 
 ```text
-job_name: ensure_indexes
-status: success
-message: Job completed successfully.
+refresh_materialized_views -> success
+ensure_indexes -> success
 ```
 
 ---
@@ -870,12 +952,6 @@ Metrics
 ```
 
 النظام يقرر المحرك تلقائيًا حسب حجم الملف.
-
-مثال لملف حجمه أقل من 200MB:
-
-```text
-engine: python_batch
-```
 
 ---
 
@@ -1040,7 +1116,13 @@ python -m py_compile .\api\main.py
 لتشغيل الاختبارات:
 
 ```powershell
-pytest
+python -m pytest
+```
+
+آخر نتيجة اختبار:
+
+```text
+16 passed
 ```
 
 ---
@@ -1185,7 +1267,7 @@ http://127.0.0.1:8000/docs
 
 ## 44. ملاحظات مهمة للتقييم
 
-المشروع لا يعتمد على:
+المشروع لا يعتمد داخل منطق التنفيذ على:
 
 ```text
 Hardcoded File Names
