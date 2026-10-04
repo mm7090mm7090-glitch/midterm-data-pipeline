@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import os
 import subprocess
 import sys
@@ -36,13 +36,11 @@ def run_python_batch(file_path, run_id):
         load_result["elapsed_seconds"]
         + quality_result["elapsed_seconds"]
     )
-
     total_throughput = (
         load_result["read_rows"] / total_elapsed
         if total_elapsed > 0
         else 0
     )
-
     metrics = {
         "stage": "python_batch_full_pipeline",
         "run_id": run_id,
@@ -63,7 +61,6 @@ def run_python_batch(file_path, run_id):
         "partitions": None,
         "counts_case_error": quality_result["counts_case_error"],
     }
-
     save_run_metrics(metrics)
 
     return {
@@ -86,12 +83,20 @@ def run_pyspark(file_path, run_id):
 
     spark_submit = "spark-submit"
 
+    # Portable Spark temporary directory.
+    # Can be overridden with the SPARK_LOCAL_DIR environment variable.
+    spark_local_dir = os.getenv(
+        "SPARK_LOCAL_DIR",
+        str(PROJECT_ROOT / ".spark-temp"),
+    )
+    Path(spark_local_dir).mkdir(parents=True, exist_ok=True)
+
     raw_command = [
         spark_submit,
         "--driver-memory",
         "8g",
         "--conf",
-        "spark.local.dir=C:/spark-temp",
+        f"spark.local.dir={spark_local_dir}",
         str(PROJECT_ROOT / "src" / "spark_loader.py"),
         "--input",
         str(file_path),
@@ -104,7 +109,7 @@ def run_pyspark(file_path, run_id):
         "--driver-memory",
         "8g",
         "--conf",
-        "spark.local.dir=C:/spark-temp",
+        f"spark.local.dir={spark_local_dir}",
         str(
             PROJECT_ROOT
             / "src"
@@ -147,7 +152,6 @@ def main():
         required=True,
         help="CSV input file path.",
     )
-
     parser.add_argument(
         "--run-id",
         required=False,
@@ -196,7 +200,6 @@ def main():
             file_path=input_path,
             run_id=run_id,
         )
-
     else:
         raise ValueError(
             f"Unsupported engine: {route['engine']}"
