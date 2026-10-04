@@ -188,12 +188,6 @@ python -m src.mongo_setup
 python -m src.main --input .\data\your_file.csv
 ```
 
-مثال محلي أثناء الاختبار:
-
-```powershell
-python -m src.main --input .\data\01_student_test_small.csv
-```
-
 النظام يحدد المحرك تلقائيًا حسب حجم الملف.
 
 ---
