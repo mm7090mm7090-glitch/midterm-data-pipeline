@@ -1,4 +1,5 @@
 import json
+import re
 import time
 from datetime import datetime, timezone
 
@@ -21,6 +22,7 @@ from src.quality_rules import (
     normalize_email,
     normalize_date,
     normalize_text_value,
+    normalize_items_quantity,
     recalculate_total_amount,
 )
 
@@ -204,7 +206,22 @@ def process_record(raw_record):
         )
 
     # -----------------------------------------------------
-    # 8. Recalculate total amount
+    # 8. Normalize qty inside items_json
+    # -----------------------------------------------------
+
+    new_value, correction = normalize_items_quantity(
+        record.get("items_json")
+    )
+
+    record["items_json"] = new_value
+
+    if correction is not None:
+        corrections.append(
+            correction
+        )
+
+    # -----------------------------------------------------
+    # 9. Recalculate total amount
     # -----------------------------------------------------
 
     new_value, correction = recalculate_total_amount(
@@ -266,6 +283,127 @@ def process_record(raw_record):
 
         error_details.append(
             "Customer ID is missing."
+        )
+
+    # -----------------------------------------------------
+    # Validate customer phone
+    # -----------------------------------------------------
+
+    phone_value = record.get(
+        "customer_phone"
+    )
+
+    phone_text = (
+        str(phone_value).strip()
+        if phone_value is not None
+        else ""
+    )
+
+    phone_valid = bool(
+        re.fullmatch(
+            r"\d{9}",
+            phone_text,
+        )
+        or re.fullmatch(
+            r"\+967\d{9}",
+            phone_text,
+        )
+    )
+
+    if not phone_valid:
+        error_codes.append(
+            "INVALID_PHONE_TOO_SHORT"
+        )
+
+        error_details.append(
+            f"Customer phone is invalid: {phone_text}"
+        )
+
+    # -----------------------------------------------------
+    # Validate customer email
+    # -----------------------------------------------------
+
+    email_value = record.get(
+        "customer_email"
+    )
+
+    email_text = (
+        str(email_value).strip()
+        if email_value is not None
+        else ""
+    )
+
+    email_pattern = (
+        r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+"
+        r"@[A-Za-z0-9-]+"
+        r"(?:\.[A-Za-z0-9-]+)+$"
+    )
+
+    if not re.fullmatch(
+        email_pattern,
+        email_text,
+    ):
+        error_codes.append(
+            "EMAIL_MISSING_DOMAIN"
+        )
+
+        error_details.append(
+            f"Customer email is invalid or missing a domain: {email_text}"
+        )
+
+    # -----------------------------------------------------
+    # Validate order status
+    # -----------------------------------------------------
+
+    allowed_statuses = {
+        "قيد الانتظار",
+        "قيد الشحن",
+        "ملغي",
+        "تم التسليم",
+        "مؤكد",
+        "مرتجع",
+    }
+
+    status_value = record.get(
+        "status"
+    )
+
+    status_text = (
+        str(status_value).strip()
+        if status_value is not None
+        else ""
+    )
+
+    if status_text not in allowed_statuses:
+        error_codes.append(
+            "UNKNOWN_ORDER_STATUS"
+        )
+
+        error_details.append(
+            f"Unknown order status: {status_text}"
+        )
+
+    # -----------------------------------------------------
+    # Validate currency
+    # -----------------------------------------------------
+
+    currency_value = record.get(
+        "currency"
+    )
+
+    currency_text = (
+        str(currency_value).strip()
+        if currency_value is not None
+        else ""
+    )
+
+    if currency_text != "YER":
+        error_codes.append(
+            "UNKNOWN_CURRENCY"
+        )
+
+        error_details.append(
+            f"Unknown or unsupported currency: {currency_text}"
         )
 
     # -----------------------------------------------------
@@ -364,7 +502,7 @@ def process_record(raw_record):
             )
 
         # -------------------------------------------------
-        # Negative ambiguous values
+        # Item validation
         # -------------------------------------------------
 
         elif isinstance(
@@ -378,6 +516,32 @@ def process_record(raw_record):
                     dict,
                 ):
                     continue
+
+                sku_value = item.get(
+                    "sku"
+                )
+
+                if (
+                    sku_value is None
+                    or not str(
+                        sku_value
+                    ).strip()
+                ):
+                    if (
+                        "MISSING_ITEM_SKU"
+                        not in error_codes
+                    ):
+                        error_codes.append(
+                            "MISSING_ITEM_SKU"
+                        )
+
+                        error_details.append(
+                            "An item is missing its SKU."
+                        )
+
+                # -----------------------------------------
+                # Negative ambiguous values
+                # -----------------------------------------
 
                 for field in [
                     "qty",
@@ -440,6 +604,23 @@ def process_record(raw_record):
 
         error_details.append(
             "Total amount is missing or cannot be determined."
+        )
+
+    # -----------------------------------------------------
+    # Multiple conflicting major errors
+    # -----------------------------------------------------
+
+    if (
+        len(set(error_codes)) >= 2
+        and "ERRORS_CONFLICTING_MULTIPLE"
+        not in error_codes
+    ):
+        error_codes.append(
+            "ERRORS_CONFLICTING_MULTIPLE"
+        )
+
+        error_details.append(
+            "Multiple major validation errors were found in the same record."
         )
 
     # =====================================================
